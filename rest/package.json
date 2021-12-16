@@ -1,0 +1,23 @@
+{
+  "name": "eps-backend",
+  "version": "1.0.0",
+  "description": "The backend for the Event Planning System designed to simplify even organization for both teachers and students. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/henry-herrmann/eps-backend.git"
+  },
+  "author": "Henry Herrmann & Jermie Bents",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/henry-herrmann/eps-backend/issues"
+  },
+  "homepage": "https://github.com/henry-herrmann/eps-backend#readme",
+  "dependencies": {
+    "mysql": "^2.18.1",
+    "rotating-file-stream": "^3.0.2"
+  }
+}
