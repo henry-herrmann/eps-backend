@@ -2,7 +2,7 @@ const mysql = require("mysql");
 
 let con;
 
-const getDB = () =>{ return con; }
+const getConnection = () =>{ return con; }
 
 const isConnected = () =>{ return con != undefined; }
 
@@ -29,7 +29,7 @@ const disconnect = () => {
 }
 
 module.exports = {
-    con: getDB,
+    getConnection: getConnection,
     isConnected: isConnected,
     connect: connect,
     disconnect: disconnect
