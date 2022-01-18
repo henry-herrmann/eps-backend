@@ -7,25 +7,20 @@ var rfs = require('rotating-file-stream')
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 
+const session = require("express-session");
+
 const config = require("./config.json");
 const connector = require("./database/connector");
+
+var MySQLStore = require("express-mysql-session")(session);
 
 let logStream = rfs.createStream('access.log', {
     interval: "1d",
     path: path.join(__dirname, '/logs/')
 })
 
+
 const app = express();
-
-app.use(cors());
-
-app.use(cookieParser());
-
-app.use(express.urlencoded({extended: true}));
-app.use(express.json());
-
-app.use("/v1", require("./routes/v1/app.js"));
-app.use("/", require("./routes/status.js"));
 
 
 const init = async () =>{
@@ -37,14 +32,33 @@ const init = async () =>{
     console.log("[INFO] EPS-Backend by Henry Herrmann & Jermie Bents");
     console.log(`[INFO] Date: ${new Date()}`);
     console.log(`[INFO] Node version: ${process.version}`);
+
+    connector.connect().then(() =>{
+        var sessionStore = new MySQLStore({}, connector.getConnection());
+
+        app.use(session({
+            key: "SESSION",
+            secret: "H%.v9V!djh_Z7Wbu",
+            store: sessionStore,
+            resave: false,
+            saveUninitialized: false
+        }))
+
+        app.use(cors());
+
+        app.use(cookieParser());
+        
+        app.use(express.urlencoded({extended: true}));
+        app.use(express.json());
+        
+        app.use("/v1", require("./routes/v1/app.js"));
+        app.use("/", require("./routes/status.js"));
+    }).catch(err => console.log(err));
 }
 
 init().then(() =>{
-    connector.connect().then(() =>{
-        
-        app.listen(config.port, () =>{
-            console.log(`[INFO] EPS-Backend Rest API started. Listening on port: ${config.port}`)
-        })
-    }).catch(err => console.log(err));
+    app.listen(config.port, () =>{
+        console.log(`[INFO] EPS-Backend Rest API started. Listening on port: ${config.port}`)
+    })
 })
 
