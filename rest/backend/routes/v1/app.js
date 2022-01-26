@@ -8,7 +8,7 @@ const { result } = require("../../structure");
 const router = express.Router();
 
 router.post("/login", async (req, res) =>{
-    if(!req.body.name || !req.body.password) return res.status(400).json(result(400, "Please provide a username and a password."))
+    if(!req.body.name || !req.body.password) return res.status(404).json(result(404, "Please provide a username and a password."))
 
     if(req.session.user){
         return res.status(200).json(result(200, "Logged in."));
@@ -16,8 +16,9 @@ router.post("/login", async (req, res) =>{
 
     const user = await dbHandler.getUserByName(req.body.name);
     if(user == null){
-        return res.status(204).json(result(204, 'User does not exist.'));
+        return res.status(404).json(result(204, 'User does not exist.'));
     }
+
 
     const valid = await bcrypt.compare(req.body.password, user.password).catch((err) => {
         return res.status(500).json(result(500, "Internal Server Error"));
@@ -25,15 +26,20 @@ router.post("/login", async (req, res) =>{
 
     if(valid){
         req.session.user = { id: user.id, name: user.name, role: user.role }
-        return res.status(200).json(result(200, "Successfully logged in."));
+
+        return res.status(200).json(result(200, "Successfully logged in.", [{sessionId: req.sessionID, userId: req.session.user.id}]));
     }else{
         return res.status(401).json(result(401, "Incorrect password."));
     }
 })
 
-router.get("/users", async (req, res) =>{
+router.get("/users", async (req, res) => {
     if(!req.session.user){
         return res.status(401).json(result(401, "Unauthorized"));
+    }
+
+    if(req.session.user < 2){
+        return res.status(403).json(result(403, "Forbidden"));
     }
 
     res.status(200).json(result(200, "All users", await dbHandler.getAllUsers()));
@@ -78,9 +84,62 @@ router.delete("/user/:id/delete", async (req, res) =>{
 router.get("/user/:id/profile", async (req, res) =>{
     if(!req.params.id) return res.status(400).json(result(400, 'Bad request'));
 
+    if(!req.session.user){
+        return res.status(204).json(result(204, "Unauthorized."));
+    }
+
     res.status(200).json(result(200, "User information for user with id " + req.params.id, await dbHandler.getUser(req.params.id)));
 })
 
+router.get("/user/profile", async (req, res) =>{
+    if(!req.session.user){
+        return res.status(204).json(result(204, "Unauthorized."));
+    }
+
+    res.status(200).json(result(200, "User information for yourself", await dbHandler.getUser(req.session.user.id)));
+})
+
+router.get("/events/all", async (req, res) =>{
+
+    if(!req.session.user){
+        return res.status(401).json(result(401, "Unauthorized."));
+    }
+
+    const events = await dbHandler.getEvents().catch(err =>{
+        return res.status(500).json(result(500, "Internal Server Error."));
+    })
+
+    return res.status(200).json(result(200, "All events:", events));
+})
+
+router.get("/events/today", async (req, res) =>{
+
+    if(!req.session.user){
+        return res.status(401).json(result(401, "Unauthorized."));
+    }
+
+    const events = await dbHandler.getEvents("today").catch(err =>{
+        return res.status(500).json(result(500, "Internal Server Error."));
+    })
+
+    return res.status(200).json(result(200, "Events for today events:", events));
+})
+
+router.get("/stats", async (req, res) =>{
+
+    const eventsToday = await dbHandler.getEvents("today").catch(err =>{
+        return res.status(500).json(result(500, "Internal Server Error."));
+    })
+
+    const eventsAll = await dbHandler.getEvents().catch(err =>{
+        return res.status(500).json(result(500, "Internal Server Error."));
+    })
+
+    const startdate = new Date("March 28, 2022 10:00:00");
+    const enddate = new Date("April 1, 2022 09:45:00");
+
+    return res.status(200).json(result(200, "Success", [{startDate: startdate.getTime(), endDate: enddate.getTime(), eventsToday: eventsToday, eventsAll: eventsAll}]));
+})
 
 router.post("/event/create", async (req, res) =>{
     if(!req.body.name || !req.body.date) return res.status(400).json(result(400, 'Bad request'));
@@ -97,11 +156,42 @@ router.post("/event/create", async (req, res) =>{
         return res.status(204).json(result(204, "Event already exists."));
     }
 
-    res.status(200).json(result(200, "Sucessfully created event!", await dbHandler.createEvent(req.body.name, req.body.date)));
+    const created = await dbHandler.createEvent(req.body.name, req.body.date, req.params.description ? req.params.description : "").catch((err) =>{
+        return res.status(500).json(result(500, "Internal Server Error"));
+    })
+
+    if(req.session.user.role >= 2){
+        const event = await dbHandler.getEvent(req.body.name);
+        await dbHandler.addTeacherToEvent(req.session.user.id, event.id);
+
+        return res.status(200).json(result(200, "Sucessfully created event!", event));
+    }
+
+    return res.status(200).json(result(200, "Sucessfully created event!", created));
+
 })
 
-router.delete("/event/delete", (req, res) =>{
-    
+router.delete("/event/delete", async (req, res) =>{
+    if(!req.body.id) return res.status(400).json(result(400, "Bad request"));
+
+    if(!req.session.user){
+        return res.status(401).json(result(401, "Unauthorized!"));
+    }
+
+    if(!req.session.user.role < 2){
+        return res.status(403).json(result(403, "Forbidden."));
+    }
+
+    const event = await dbHandler.getEvent("", parseInt(req.body.id));
+    if(event == null){
+        return res.status(204).json(result(204, "Event does not exist."));
+    }
+
+    dbHandler.deleteEvent(req.body.id).then(() =>{
+        return res.status(200).json(result(200, "Success!", event));
+    }).catch((err) =>{
+        return res.status(500).json(result(500, "Internal Server Error"));
+    })
 })
 
 router.patch("/event/:id/update/name/:name", async (req, res) =>{
@@ -147,6 +237,16 @@ router.post("/event/join/:eventid", async (req, res) =>{
         return res.status(401).json(result(401, "Unauthorized"));
     }
 
+    if(req.session.user.role > 2){
+        await dbHandler.addTeacherToEvent(req.session.user.id, req.params.eventid).then((callback) =>{
+            res.status(200).json(result(200, `The teacher with the id ${req.session.user.id} now attends the event with the id ${req.params.eventid}`));
+        }).catch(err =>{
+            console.log(err)
+            res.status(500).json(result(500, "The teacher already attends that event."));
+        })
+        return;
+    }
+
     await dbHandler.attendEvent(req.session.user.id, req.params.eventid).then((callback) =>{
         res.status(200).json(result(200, `The user with the id ${req.session.user.id} now attends the event with the id ${req.params.eventid}`));
     }).catch(err =>{
@@ -164,6 +264,19 @@ router.post("/event/join/:eventid/:userid", async (req, res) =>{
 
     if(req.session.user.role < 2){
         return res.status(403).json(result(403, "Forbidden"));
+    }
+
+    const user = await dbHandler.getUser(req.params.userid);
+
+    if(user == null) return res.status(400).json(result(400, "No user found."));
+
+    if(user[0].role > 2){
+        await dbHandler.addTeacherToEvent(user[0].id, req.params.eventid).then((callback) =>{
+            res.status(200).json(result(200, `The teacher with the id ${req.params.userid} now attends the event with the id ${req.params.eventid}`));
+        }).catch((err) =>{
+            res.status(500).json(result(500, "The teacher already attends that event."));
+        })
+        return;
     }
 
     await dbHandler.attendEvent(req.params.userid, req.params.eventid).then((callback) =>{
@@ -184,6 +297,20 @@ router.delete("/event/leave/:eventid/:userid", async (req, res) =>{
         return res.status(403).json(result(403, "Forbidden"));
     }
 
+    const user = await dbHandler.getUser(req.params.userid)
+
+
+    if(user == null) return res.status(400).json(result(400, "No user found."));
+
+    if(user[0].role > 2){
+        await dbHandler.removeTeacherFromEvent(user[0].id, req.params.eventid).then((callback) =>{
+            res.status(200).json(result(200, `The teacher with the id ${req.session.user.id} was removed from the event with the id ${req.params.eventid}`));
+        }).catch(err =>{
+            res.status(500).json(result(500, "The teacher does not attend that event."));
+        })
+        return;
+    }
+
     await dbHandler.leaveEvent(req.params.userid, req.params.eventid).then((callback) =>{
         res.status(200).json(result(200, `The user with the id ${req.params.userid} left the event with the id ${req.params.eventid}`));
     }).catch(err =>{
@@ -198,12 +325,52 @@ router.delete("/event/leave/:eventid", async (req, res) =>{
         return res.status(401).json(result(401, "Unauthorized"));
     }
 
+    if(req.session.user.role > 2){
+        await dbHandler.removeTeacherFromEvent(req.session.user.id, req.params.eventid).then((callback) =>{
+            res.status(200).json(result(200, `The teacher with the id ${req.session.user.id} was removed from the event with the id ${req.params.eventid}`));
+        }).catch(err =>{
+            res.status(500).json(result(500, "The teacher does not attend that event."));
+        })
+        return;
+    }
+
     await dbHandler.leaveEvent(req.session.user.id, req.params.eventid).then((callback) =>{
         res.status(200).json(result(200, `The user with the id ${req.session.user.id} left the event with the id ${req.params.eventid}`));
     }).catch(err =>{
         res.status(500).json(result(500, "The user does not attend that event."));
     })
 })
+
+router.get("/event/:eventid/users", async (req, res) =>{
+    if(!req.params.eventid) return res.status(400).json(result(400, 'Bad request'));
+
+    const attendees = await dbHandler.getEventParticipants(req.params.eventid).catch(err =>{
+        res.status(500).json(result(500, "Internal Server Error", err));
+    }) 
+
+    res.status(200).json(result(200, "Event participants:", attendees));
+})
+
+router.get("/event/:eventid/teachers", async (req, res) =>{
+    if(!req.params.eventid) return res.status(400).json(result(400, 'Bad request'));
+
+    const teachers = await dbHandler.getEventTeachers(req.params.eventid).catch(err =>{
+        res.status(500).json(result(500, "Internal Server Error", err));
+    }) 
+
+    res.status(200).json(result(200, "Event teachers:", teachers));
+})
+
+router.get("/event/:eventid/data", async (req, res) =>{
+    if(!req.params.eventid) return res.status(400).json(result(400, 'Bad request'));
+
+    const event = await dbHandler.getEvent("", req.params.eventid).catch(err =>{
+        return res.status(500).json(result(500, "Internal Server Error"));
+    })
+
+    res.status(200).json(result(200, "Event data: ", event[0]));
+})
+
 
 
 module.exports = router;

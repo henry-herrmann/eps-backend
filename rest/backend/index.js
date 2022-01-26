@@ -41,7 +41,7 @@ const init = async () =>{
             secret: "H%.v9V!djh_Z7Wbu",
             store: sessionStore,
             resave: false,
-            saveUninitialized: false
+            saveUninitialized: true
         }))
 
         app.use(cors());
