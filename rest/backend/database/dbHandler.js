@@ -213,9 +213,9 @@ const getEvents = (userid, date = "") => {
                 for(const event of result){
                     console.log(event.date.toString());
                     if(await participatesInEvent(userid, event.id)){
-                        events.push({result: event, member: true});
+                        events.push({result: {id: event.id, name: event.name, desc: event.desc, date: event.date.toString()}, member: true});
                     }else{
-                        events.push({result: event, member: false});
+                        events.push({result: {id: event.id, name: event.name, desc: event.desc, date: event.date.toString()}, member: false});
                     }
                 }
 
@@ -232,9 +232,9 @@ const getEvents = (userid, date = "") => {
 
                     for(const event of result){
                         if(await participatesInEvent(userid, event.id)){
-                            events.push({result: event, member: true});
+                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: event.date.toString()}, member: true});
                         }else{
-                            events.push({result: event, member: false});
+                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: event.date.toString()}, member: false});
                         }
                     }
     
@@ -250,9 +250,9 @@ const getEvents = (userid, date = "") => {
 
                     for(const event of result){
                         if(await participatesInEvent(userid, event.id)){
-                            events.push({result: event, member: true});
+                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: event.date.toString()}, member: true});
                         }else{
-                            events.push({result: event, member: false});
+                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: event.date.toString()}, member: false});
                         }
                     }
     
