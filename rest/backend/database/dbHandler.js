@@ -211,6 +211,7 @@ const getEvents = (userid, date = "") => {
                 const events = [];
 
                 for(const event of result){
+                    console.log(event.date);
                     if(await participatesInEvent(userid, event.id)){
                         events.push({result: event, member: true});
                     }else{
