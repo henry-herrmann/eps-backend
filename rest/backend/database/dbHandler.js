@@ -178,32 +178,84 @@ const getEvent = (name = "", id = 0) =>{
     })
 }
 
-const getEvents = (date = "") => {
+const participatesInEvent = (userid, eventid, role) => {
+    return new Promise((resolve, reject) =>{
+        if(role == 2){
+            getConnection().query("SELECT * FROM event_teachers WHERE userid = ? AND eventid = ?", [userid, eventid], (err, result, fields) =>{
+                if(err) return reject(err);
+
+                if(result == undefined || result.length == 0) return resolve(false);
+
+                return resolve(true);
+            })
+        }else{
+            getConnection().query("SELECT * FROM event_participants WHERE userid = ? AND eventid = ?", [userid, eventid], (err, result, fields) =>{
+                if(err) return reject(err);
+
+                if(result == undefined || result.length == 0) return resolve(false);
+
+                return resolve(true);
+            })
+        }
+    })
+}
+
+const getEvents = (userid, date = "") => {
     return new Promise((resolve, reject) => {
         if(date == ""){
-            getConnection().query("SELECT * FROM events", (err, result, fields) =>{
+            getConnection().query("SELECT * FROM events ORDER BY date", async (err, result, fields) =>{
                 if(err) return reject(err);
 
                 if(result == undefined || result.length == 0) return resolve([]);
 
-                return resolve(result);
+                const events = [];
+
+                for(const event of result){
+                    if(await participatesInEvent(userid, event.id)){
+                        events.push({result: event, member: true});
+                    }else{
+                        events.push({result: event, member: false});
+                    }
+                }
+
+                return resolve(events);
             })
         }else{
             if(date == "today"){
-                getConnection().query("SELECT * FROM events WHERE date >= timestamp(CURRENT_DATE()) AND date < timestamp(DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY))", (err, result, fields) =>{
+                getConnection().query("SELECT * FROM events WHERE date >= timestamp(CURRENT_DATE()) AND date < timestamp(DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY)) ORDER BY date", async (err, result, fields) =>{
                     if(err) return reject(err);
     
                     if(result == undefined || result.length == 0) return resolve([]);
     
-                    return resolve(result);
+                    const events = [];
+
+                    for(const event of result){
+                        if(await participatesInEvent(userid, event.id)){
+                            events.push({result: event, member: true});
+                        }else{
+                            events.push({result: event, member: false});
+                        }
+                    }
+    
+                    return resolve(events);
                 })
             }else{
-                getConnection().query("SELECT * FROM events WHERE date >= timestamp(?) AND date < timestamp(DATE_ADD(?, INTERVAL 1 DAY))", [date, date], (err, result, fields) =>{
+                getConnection().query("SELECT * FROM events WHERE date >= timestamp(?) AND date < timestamp(DATE_ADD(?, INTERVAL 1 DAY)) ORDER BY date", [date, date], async (err, result, fields) =>{
                     if(err) return reject(err);
     
                     if(result == undefined || result.length == 0) return resolve([]);
     
-                    return resolve(result);
+                    const events = [];
+
+                    for(const event of result){
+                        if(await participatesInEvent(userid, event.id)){
+                            events.push({result: event, member: true});
+                        }else{
+                            events.push({result: event, member: false});
+                        }
+                    }
+    
+                    return resolve(events);
                 })  
             }
         }

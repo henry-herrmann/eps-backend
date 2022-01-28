@@ -105,7 +105,7 @@ router.get("/events/all", async (req, res) =>{
         return res.status(401).json(result(401, "Unauthorized."));
     }
 
-    const events = await dbHandler.getEvents().catch(err =>{
+    const events = await dbHandler.getEvents(req.session.user.id).catch(err =>{
         return res.status(500).json(result(500, "Internal Server Error."));
     })
 
@@ -118,7 +118,7 @@ router.get("/events/today", async (req, res) =>{
         return res.status(401).json(result(401, "Unauthorized."));
     }
 
-    const events = await dbHandler.getEvents("today").catch(err =>{
+    const events = await dbHandler.getEvents(req.session.user.id, "today").catch(err =>{
         return res.status(500).json(result(500, "Internal Server Error."));
     })
 
@@ -127,11 +127,11 @@ router.get("/events/today", async (req, res) =>{
 
 router.get("/stats", async (req, res) =>{
 
-    const eventsToday = await dbHandler.getEvents("today").catch(err =>{
+    const eventsToday = await dbHandler.getEvents(req.session.user.id, "today").catch(err =>{
         return res.status(500).json(result(500, "Internal Server Error."));
     })
 
-    const eventsAll = await dbHandler.getEvents().catch(err =>{
+    const eventsAll = await dbHandler.getEvents(req.session.user.id).catch(err =>{
         return res.status(500).json(result(500, "Internal Server Error."));
     })
 
