@@ -127,6 +127,10 @@ router.get("/events/today", async (req, res) =>{
 
 router.get("/stats", async (req, res) =>{
 
+    if(!req.session.user){
+        return res.status(401).json(result(401, "Unauthorized."));
+    }
+
     const eventsToday = await dbHandler.getEvents(req.session.user.id, "today").catch(err =>{
         return res.status(500).json(result(500, "Internal Server Error."));
     })
