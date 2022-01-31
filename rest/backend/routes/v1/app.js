@@ -188,12 +188,39 @@ router.delete("/event/delete", async (req, res) =>{
 
     const event = await dbHandler.getEvent("", parseInt(req.body.id));
     if(event == null){
-        return res.status(204).json(result(204, "Event does not exist."));
+        return res.status(400).json(result(400, "Event does not exist."));
     }
 
     dbHandler.deleteEvent(req.body.id).then(() =>{
         return res.status(200).json(result(200, "Success!", event));
     }).catch((err) =>{
+        return res.status(500).json(result(500, "Internal Server Error"));
+    })
+})
+
+router.patch("/event/:id/update", async (req, res) =>{
+    if(!req.params.id || !req.body.name || !req.body.desc || !req.body.date || !req.body.type) return res.status(400).json(result(400, "Bad request."));
+
+    if(!req.session.user || !req.session.role){
+        return res.status(401).json(result(401, "Unauthorized"));
+    }
+
+    if(req.session.role < 2){
+        return res.status(403).json(result(403, "Forbidden"));
+    }
+
+    const event = await dbHandler.getEvent("", parseInt(req.params.id));
+    if(event == null){
+        return res.status(400).json(result(400, "Event does not exist."));
+    }
+
+    const date = new Date(req.body.date);
+
+    const timestamp = `${date.getFullYear()}-${date.getMonth()+1}-${date.getUTCDay()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+
+    await dbHandler.executeSQL("UPDATE events SET name = ?, desc = ?, date = ?, type = ? WHERE id = ?", [req.body.name, req.body.desc, timestamp, req.body.type, req.params.id]).then(() =>{
+        return res.status(200).json(result(200, "Sucessfully updated the event!"));
+    }).catch(err =>{
         return res.status(500).json(result(500, "Internal Server Error"));
     })
 })

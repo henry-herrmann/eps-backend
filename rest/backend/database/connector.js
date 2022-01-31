@@ -22,6 +22,7 @@ const connect = async () =>{
     })
 }
 
+
 const disconnect = () => {
     if(!isConnected()) return;
 
