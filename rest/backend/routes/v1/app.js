@@ -214,13 +214,14 @@ router.patch("/event/:id/update", async (req, res) =>{
         return res.status(400).json(result(400, "Event does not exist."));
     }
 
+    console.log("yes");
+
     const date = new Date(req.body.date);
 
     const timestamp = `${date.getFullYear()}-${date.getMonth()+1}-${date.getUTCDay()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
-    await dbHandler.executeSQL("UPDATE events SET name = ?, desc = ?, date = ?, type = ? WHERE id = ?", [req.body.name, req.body.desc, timestamp, req.body.type, req.params.id], (err, results, fields)).then(() =>{
-        if(err) return res.status(500).json(result(500, "Internal Server Error"));
-        
+    await dbHandler.executeSQL("UPDATE events SET name = ?, desc = ?, date = ?, type = ? WHERE id = ?", [req.body.name, req.body.desc, timestamp, req.body.type, req.params.id]).then(() =>{
+
         return res.status(200).json(result(200, "Sucessfully updated the event!"));
     }).catch(err =>{
         return res.status(500).json(result(500, "Internal Server Error"));
