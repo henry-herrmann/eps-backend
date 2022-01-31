@@ -219,9 +219,9 @@ router.patch("/event/:id/update", async (req, res) =>{
     const timestamp = `${date.getFullYear()}-${date.getMonth()+1}-${date.getUTCDay()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
     await dbHandler.executeSQL("UPDATE events SET name = ?, desc = ?, date = ?, type = ? WHERE id = ?", [req.body.name, req.body.desc, timestamp, req.body.type, req.params.id]).then(() =>{
+        console.log("yes");
         return res.status(200).json(result(200, "Sucessfully updated the event!"));
     }).catch(err =>{
-        console.log("yes");
         return res.status(500).json(result(500, "Internal Server Error"));
     })
 })
