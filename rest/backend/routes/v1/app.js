@@ -211,6 +211,7 @@ router.patch("/event/:id/update", async (req, res) =>{
 
     const event = await dbHandler.getEvent("", parseInt(req.params.id));
     if(event == null){
+        console.log("yes");
         return res.status(400).json(result(400, "Event does not exist."));
     }
 
