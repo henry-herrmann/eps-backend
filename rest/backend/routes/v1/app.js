@@ -199,6 +199,7 @@ router.delete("/event/delete", async (req, res) =>{
 })
 
 router.patch("/event/:id/update", async (req, res) =>{
+    console.log("yes");
     if(!req.params.id || !req.body.name || !req.body.desc || !req.body.date || !req.body.type) return res.status(400).json(result(400, "Bad request."));
 
     if(!req.session.user || !req.session.role){
@@ -213,8 +214,6 @@ router.patch("/event/:id/update", async (req, res) =>{
     if(event == null){
         return res.status(400).json(result(400, "Event does not exist."));
     }
-
-    console.log("yes");
 
     const date = new Date(req.body.date);
 
