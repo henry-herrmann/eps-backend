@@ -222,6 +222,7 @@ router.patch("/event/:id/update", async (req, res) =>{
 
         return res.status(200).json(result(200, "Sucessfully updated the event!"));
     }).catch(err =>{
+        console.log(err);
         return res.status(500).json(result(500, "Internal Server Error"));
     })
 })
