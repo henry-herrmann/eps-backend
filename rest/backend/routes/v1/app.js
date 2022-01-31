@@ -216,10 +216,11 @@ router.patch("/event/:id/update", async (req, res) =>{
 
     const date = new Date(req.body.date);
 
+    console.log(date.getUTCDay());
+
     const timestamp = `${date.getFullYear()}-${date.getMonth()+1}-${date.getUTCDay()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
     await dbHandler.executeSQL("UPDATE events SET `name` = ?, `desc` = ?, `date` = ?, `type` = ? WHERE id = ?", [req.body.name, req.body.desc, timestamp, req.body.type, req.params.id]).then(() =>{
-        console.log("yes");
         return res.status(200).json(result(200, "Sucessfully updated the event!"));
     }).catch(err =>{
         console.log(err);
