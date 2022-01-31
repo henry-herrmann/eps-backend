@@ -214,7 +214,7 @@ router.patch("/event/:id/update", async (req, res) =>{
         return res.status(400).json(result(400, "Event does not exist."));
     }
 
-    const date = new Date(req.body.date);
+    const date = new Date(parseInt(req.body.date));
 
     console.log(date.getUTCDay());
 
