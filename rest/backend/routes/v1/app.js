@@ -211,7 +211,6 @@ router.patch("/event/:id/update", async (req, res) =>{
 
     const event = await dbHandler.getEvent("", parseInt(req.params.id));
     if(event == null){
-        console.log("yes");
         return res.status(400).json(result(400, "Event does not exist."));
     }
 
@@ -222,6 +221,7 @@ router.patch("/event/:id/update", async (req, res) =>{
     await dbHandler.executeSQL("UPDATE events SET name = ?, desc = ?, date = ?, type = ? WHERE id = ?", [req.body.name, req.body.desc, timestamp, req.body.type, req.params.id]).then(() =>{
         return res.status(200).json(result(200, "Sucessfully updated the event!"));
     }).catch(err =>{
+        console.log("yes");
         return res.status(500).json(result(500, "Internal Server Error"));
     })
 })
