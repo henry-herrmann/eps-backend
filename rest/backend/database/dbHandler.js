@@ -212,9 +212,9 @@ const getEvents = (userid, date = "") => {
 
                 for(const event of result){
                     if(await participatesInEvent(userid, event.id)){
-                        events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime()}, member: true});
+                        events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime(), type: event.type}, member: true});
                     }else{
-                        events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime()}, member: false});
+                        events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime(), type: event.type}, member: false});
                     }
                 }
 
@@ -231,9 +231,9 @@ const getEvents = (userid, date = "") => {
 
                     for(const event of result){
                         if(await participatesInEvent(userid, event.id)){
-                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime()}, member: true});
+                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime(), type: event.type}, member: true});
                         }else{
-                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime()}, member: false});
+                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime(), type: event.type}, member: false});
                         }
                     }
     
@@ -249,9 +249,9 @@ const getEvents = (userid, date = "") => {
 
                     for(const event of result){
                         if(await participatesInEvent(userid, event.id)){
-                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime()}, member: true});
+                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime(), type: event.type}, member: true});
                         }else{
-                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime()}, member: false});
+                            events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime(), type: event.type}, member: false});
                         }
                     }
     
