@@ -201,7 +201,7 @@ const participatesInEvent = (userid, eventid, role) => {
     })
 }
 
-const getEvents = (userid, date = "") => {
+const getEvents = (userid, role, date = "") => {
     return new Promise((resolve, reject) => {
         if(date == ""){
             getConnection().query("SELECT * FROM events ORDER BY date", async (err, result, fields) =>{
@@ -212,7 +212,7 @@ const getEvents = (userid, date = "") => {
                 const events = [];
 
                 for(const event of result){
-                    if(await participatesInEvent(userid, event.id)){
+                    if(await participatesInEvent(userid, event.id, role)){
                         events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime(), type: event.type}, member: true});
                     }else{
                         events.push({result: {id: event.id, name: event.name, desc: event.desc, date: new Date(event.date).getTime(), type: event.type}, member: false});
