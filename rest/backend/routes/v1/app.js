@@ -269,7 +269,7 @@ router.post("/event/join/:eventid", async (req, res) =>{
         return res.status(401).json(result(401, "Unauthorized"));
     }
 
-    if(req.session.user.role > 2){
+    if(req.session.user.role > 1){
         await dbHandler.addTeacherToEvent(req.session.user.id, req.params.eventid).then((callback) =>{
             res.status(200).json(result(200, `The teacher with the id ${req.session.user.id} now attends the event with the id ${req.params.eventid}`));
         }).catch(err =>{
@@ -301,7 +301,7 @@ router.post("/event/join/:eventid/:userid", async (req, res) =>{
 
     if(user == null) return res.status(400).json(result(400, "No user found."));
 
-    if(user[0].role > 2){
+    if(user[0].role > 1){
         await dbHandler.addTeacherToEvent(user[0].id, req.params.eventid).then((callback) =>{
             res.status(200).json(result(200, `The teacher with the id ${req.params.userid} now attends the event with the id ${req.params.eventid}`));
         }).catch((err) =>{
@@ -333,7 +333,7 @@ router.delete("/event/leave/:eventid/:userid", async (req, res) =>{
 
     if(user == null) return res.status(400).json(result(400, "No user found."));
 
-    if(user[0].role > 2){
+    if(user[0].role > 1){
         await dbHandler.removeTeacherFromEvent(user[0].id, req.params.eventid).then((callback) =>{
             res.status(200).json(result(200, `The teacher with the id ${req.session.user.id} was removed from the event with the id ${req.params.eventid}`));
         }).catch(err =>{
