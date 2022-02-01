@@ -180,7 +180,7 @@ const getEvent = (name = "", id = 0) =>{
 
 const participatesInEvent = (userid, eventid, role) => {
     return new Promise((resolve, reject) =>{
-        if(role == 2){
+        if(role > 1){
             getConnection().query("SELECT * FROM event_teachers WHERE userid = ? AND eventid = ?", [userid, eventid], (err, result, fields) =>{
                 if(err) return reject(err);
 
