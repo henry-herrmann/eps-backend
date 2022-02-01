@@ -27,7 +27,7 @@ router.post("/login", async (req, res) =>{
     if(valid){
         req.session.user = { id: user.id, name: user.name, role: user.role }
 
-        return res.status(200).json(result(200, "Successfully logged in.", [{sessionId: req.sessionID, userId: req.session.user.id}]));
+        return res.status(200).json(result(200, "Successfully logged in.", [{role: req.session.user.role}]));
     }else{
         return res.status(401).json(result(401, "Incorrect password."));
     }
