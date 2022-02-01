@@ -357,7 +357,7 @@ router.delete("/event/leave/:eventid", async (req, res) =>{
         return res.status(401).json(result(401, "Unauthorized"));
     }
 
-    if(req.session.user.role > 2){
+    if(req.session.user.role > 1){
         await dbHandler.removeTeacherFromEvent(req.session.user.id, req.params.eventid).then((callback) =>{
             res.status(200).json(result(200, `The teacher with the id ${req.session.user.id} was removed from the event with the id ${req.params.eventid}`));
         }).catch(err =>{
