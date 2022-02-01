@@ -273,7 +273,6 @@ router.post("/event/join/:eventid", async (req, res) =>{
         await dbHandler.addTeacherToEvent(req.session.user.id, req.params.eventid).then((callback) =>{
             res.status(200).json(result(200, `The teacher with the id ${req.session.user.id} now attends the event with the id ${req.params.eventid}`));
         }).catch(err =>{
-            console.log(err)
             res.status(500).json(result(500, "The teacher already attends that event."));
         })
         return;
