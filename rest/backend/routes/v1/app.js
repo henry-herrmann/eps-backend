@@ -226,42 +226,6 @@ router.patch("/event/:id/update", async (req, res) =>{
     })
 })
 
-router.patch("/event/:id/update/name/:name", async (req, res) =>{
-    if(!req.params.id || !req.params.id) return res.status(400).json(result(400, 'Bad request'));
-
-    if(!req.session.user || !req.session.role){
-        return res.status(401).json(result(401, "Unauthorized"));
-    }
-
-    if(req.session.role < 2){
-        return res.status(403).json(result(403, "Forbidden"));
-    }
-
-    await dbHandler.executeSQL("UPDATE events SET name = ? WHERE id = ?", [req.params.name, req.params.id]).then(() =>{
-        res.status(200).json(result(200, `The name for the event with the id ${req.params.id} was updated to: ${req.params.name}`));
-    }).catch(err =>{
-        res.status(500).json(result(500, "Internal Server Error. Please provide a name and id parameter."));
-    })
-})
-
-router.patch("/event/:id/update/date/:date", async (req, res) =>{
-    if(!req.params.id || !req.params.date) return res.status(400).json(result(400, "Bad request."));
-
-    if(!req.session.user || !req.session.role){
-        return res.status(401).json(result(401, "Unauthorized"));
-    }
-
-    if(req.session.role < 2){
-        return res.status(403).json(result(403, "Forbidden"));
-    }
-
-    await dbHandler.executeSQL("UPDATE events SET date = ? WHERE id = ?", [req.params.date, req.params.id]).then(() =>{
-        res.status(200).json(result(200, `The date of the event with the id ${req.params.id} was updated to: ${req.params.date}`))
-    }).catch(err =>{
-        res.status(500).json(result(500, "Internal Server Error. Make sure to provide the id and date parameter."))
-    })
-})
-
 router.post("/event/join/:eventid", async (req, res) =>{
     if(!req.params.eventid) return res.status(400).json(result(400, 'Bad request'));
 
