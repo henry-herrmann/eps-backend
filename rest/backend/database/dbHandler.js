@@ -278,7 +278,7 @@ const getEventParticipants = async (id) =>{
     return new Promise((resolve, reject) =>{
         if(id == undefined || id == null) return reject("Id cannot be undefined/null");
 
-        getConnection().query("SELECT DISTINCT users.id, users.name FROM users, event_participants WHERE users.id = event_participants.userid AND eventid = ?", [id], (err, result, fields) =>{
+        getConnection().query("SELECT DISTINCT users.id AS id, users.name AS name FROM users, event_participants WHERE users.id = event_participants.userid AND eventid = ?", [id], (err, result, fields) =>{
             if(err) return reject(err);
 
             if(result == undefined || result.length == 0) return resolve([]);
@@ -292,7 +292,7 @@ const getEventTeachers = async (id) =>{
     return new Promise((resolve, reject) =>{
         if(id == undefined || id == null) return reject("Id cannot be undefined/null");
 
-        getConnection().query("SELECT DISTINCT users.id, users.name FROM users, event_teachers WHERE users.id = event_teachers.userid AND eventid = ?", [id], (err, result, fields) =>{
+        getConnection().query("SELECT DISTINCT users.id AS id, users.name AS name FROM users, event_teachers WHERE users.id = event_teachers.userid AND eventid = ?", [id], (err, result, fields) =>{
             if(err) return reject(err);
 
             if(result == undefined || result.length == 0) return resolve([]);
