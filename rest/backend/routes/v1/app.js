@@ -52,7 +52,7 @@ router.post("/user/create", async (req, res) =>{
         return res.status(401).json(result(401, "Unauthorized"));
     }
 
-    if(req.session < 3){
+    if(req.session.user.role < 3){
         return res.status(403).json(result(403, "Forbidden"));
     }
 
@@ -66,11 +66,11 @@ router.post("/user/create", async (req, res) =>{
 router.delete("/user/:id/delete", async (req, res) =>{
     if(!req.params.id) return res.status(400).json(result(400, 'Bad request'));
 
-    if(!req.session.user || !req.session.role){
+    if(!req.session.user){
         return res.status(401).json(result(401, "Unauthorized"));
     }
 
-    if(req.session.role != 3){
+    if(req.session.user.role != 3){
         return res.status(403).json(result(403, "Forbidden"));
     }
 
@@ -79,6 +79,30 @@ router.delete("/user/:id/delete", async (req, res) =>{
     }
 
     res.status(200).json(result(200, "Sucessfully deleted user!", await dbHandler.deleteUser(req.params.id)));
+})
+
+router.patch("/user/:id/password", async (req, res)=>{
+    if(!req.params.id) if(!req.params.id) return res.status(400).json(result(400, 'Bad request'));
+
+    if(!req.session.user){
+        return res.status(401).json(result(401, "Unauthorized"));
+    }
+    if(req.session.user.role < 3){
+        return res.status(403).json(result(403, "Forbidden")); 
+    }
+
+})
+
+router.patch("/user/password", async (req, res)=>{
+    if(!req.params.id) if(!req.params.id) return res.status(400).json(result(400, 'Bad request'));
+
+    if(!req.session.user){
+        return res.status(401).json(result(401, "Unauthorized"));
+    }
+    if(req.session.user.role < 3){
+        return res.status(403).json(result(403, "Forbidden")); 
+    }
+    
 })
 
 router.get("/user/:id/profile", async (req, res) =>{

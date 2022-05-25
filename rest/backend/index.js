@@ -1,8 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 
 const fs = require("fs");
 const path = require('path');
-const cors = require("cors");
 var rfs = require('rotating-file-stream')
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
@@ -37,8 +37,8 @@ const init = async () =>{
         var sessionStore = new MySQLStore({}, connector.getConnection());
 
         app.use(session({
-            key: "SESSION",
-            secret: "H%.v9V!djh_Z7Wbu",
+            key: process.env.SESSION_KEY,
+            secret: process.env.SESSION_SECRET,
             store: sessionStore,
             resave: false,
             saveUninitialized: true

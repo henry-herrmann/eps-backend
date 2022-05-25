@@ -11,10 +11,10 @@ const connect = async () =>{
         if(isConnected()) reject("Already connected!");
 
         con = mysql.createPool({
-            host: "202.61.201.124",
-            user: "eps",
-            password: "(-6tzTFlIN0EP6x2",
-            database: "eps"
+            host: process.env.HOST,
+            user: process.env.USER,
+            password: process.env.PSWD,
+            database: process.env.DATABASE
         })
 
         console.log("[INFO] Connected to database!")

@@ -77,6 +77,16 @@ const deleteUser = async (id) =>{
     })
 }
 
+const changePassword = (id, newPassword) =>{
+    return new Promise((resolve, reject) =>{
+        if(!isConnected()) return reject("The API is not connected to the database.");
+
+        getConnection().query("UPDATE users SET password = ? WHERE id = ?", [newPassword, id], (err, result, fields) =>{
+            
+        })
+    })
+}
+
 const createEvent = async (name, date, desc) => {
     return new Promise((resolve, reject) =>{
         if(!isConnected()) return reject("The API is not connected to the database.");
