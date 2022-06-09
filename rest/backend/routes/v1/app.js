@@ -48,13 +48,13 @@ router.get("/users", async (req, res) => {
 router.post("/user/create", async (req, res) =>{
     if(!req.body.name || !req.body.password || !req.body.role) return res.status(400).json(result(400, 'Bad request'));
 
-    if(!req.session.user){
+    /*if(!req.session.user){
         return res.status(401).json(result(401, "Unauthorized"));
     }
 
     if(req.session.user.role < 3){
         return res.status(403).json(result(403, "Forbidden"));
-    }
+    }*/
 
     if(await dbHandler.getUserByName(req.body.name) != null){
         return res.status(204).json(result(204, 'User already exists'));
