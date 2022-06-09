@@ -43,9 +43,7 @@ const init = async () =>{
             resave: false,
             saveUninitialized: true
         }))
-
-        app.use(cors());
-
+        
         app.use(cookieParser());
         
         app.use(express.urlencoded({extended: true}));
