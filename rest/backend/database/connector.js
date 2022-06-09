@@ -10,6 +10,8 @@ const connect = async () =>{
     return new Promise((resolve, reject) =>{
         if(isConnected()) reject("Already connected!");
 
+        console.log(process.env)
+
         con = mysql.createPool({
             host: process.env.HOST,
             user: process.env.USER,
