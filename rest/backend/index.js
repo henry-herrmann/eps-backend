@@ -41,9 +41,9 @@ const init = async () =>{
             secret: process.env.SESSION_SECRET,
             store: sessionStore,
             resave: false,
-            saveUninitialized: true
+            saveUninitialized: false
         }))
-        
+
         app.use(cookieParser());
         
         app.use(express.urlencoded({extended: true}));
