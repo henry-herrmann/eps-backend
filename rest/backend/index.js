@@ -32,7 +32,7 @@ const init = async () =>{
     app.use(morgan('combined', { stream: logStream }));
 
     console.log("[INFO] EPS-Backend Rest API is starting...\n");
-    console.log("[INFO] EPS-Backend by Henry");
+    console.log("[INFO] EPS-Backend by Henry Herrmann");
     console.log(`[INFO] Date: ${new Date()}`);
     console.log(`[INFO] Node version: ${process.version}`);
 
