@@ -42,6 +42,10 @@ router.get("/users", async (req, res) => {
         return res.status(403).json(result(403, "Forbidden"));
     }
 
+    const users = await dbHandler.getAllUsers();
+
+    const filtered = users.map((value) => {value.id, value.name, value.role});
+
     res.status(200).json(result(200, "All users", await dbHandler.getAllUsers()));
 })
 
@@ -274,7 +278,7 @@ router.post("/event/join/:eventid", async (req, res) =>{
 })
 
 
-router.post("/event/join/:eventid/:userid", async (req, res) =>{
+router.post("/event/join/:eventid/user/:userid", async (req, res) =>{
     if(!req.params.eventid || !req.params.userid) return res.status(400).json(result(400, 'Bad request'));
 
     if(!req.session.user){
@@ -303,6 +307,47 @@ router.post("/event/join/:eventid/:userid", async (req, res) =>{
     }).catch(err =>{
         res.status(500).json(result(500, "The user already attends that event."));
     })
+});
+
+
+router.post("/event/join/:eventid/massAdd/", async (req, res) =>{
+    if(!req.params.eventid || !req.body.users) return res.status(400).json(result(400, 'Bad request'));
+
+    if(!req.session.user){
+        return res.status(401).json(result(401, "Unauthorized"));
+    }
+
+    if(req.session.user.role < 2){
+        return res.status(403).json(result(403, "Forbidden"));
+    }
+
+    const string = [];
+
+    for(const userId of req.body.users) {
+        const user = await dbHandler.getUser(userId);
+
+        if(user == null) {
+            string.push(`User with the id ${userId} not found.`);
+            continue;
+        }
+
+        if(user[0].role > 1){
+            await dbHandler.addTeacherToEvent(user[0].id, req.params.eventid).then((callback) =>{
+                string.push(`The teacher with the id ${userId} was added to the event.`);
+            }).catch((err) =>{
+                string.push(`The teacher with the id ${userId} already attends that event.`);
+            })
+            continue;
+        }
+    
+        await dbHandler.attendEvent(req.params.userid, req.params.eventid).then((callback) =>{
+            string.push(`The student with the id ${userId} now attends that event.`)
+        }).catch(err =>{
+            string.push(`The student with the id ${userId} already attends that event.`)
+        });
+    }
+
+    return res.status(200).send(result(200, "Success", string));
 })
 
 router.delete("/event/leave/:eventid/:userid", async (req, res) =>{

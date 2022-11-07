@@ -363,5 +363,5 @@ const executeSQL = async (sql, values) => {
 
 
 module.exports = {
-    getUser, getAllUsers, createUser, deleteUser, createEvent, executeSQL, getUserByName, attendEvent, leaveEvent, getEvent, deleteEvent, addTeacherToEvent, getEventParticipants, getEventTeachers, removeTeacherFromEvent, teacherAttendsEvent, getEvents
+    test, getUser, getAllUsers, createUser, deleteUser, createEvent, executeSQL, getUserByName, attendEvent, leaveEvent, getEvent, deleteEvent, addTeacherToEvent, getEventParticipants, getEventTeachers, removeTeacherFromEvent, teacherAttendsEvent, getEvents
 }
